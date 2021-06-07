@@ -50,6 +50,30 @@ app.post('/addProduct', (req, res) => {
     })
 })
 
+app.post("/addProduct", (req, res) => {
+    const file = req.files.file;
+    const name = req.body.name;
+    const key = req.body.key;
+    const price = req.body.price;
+    const category = req.body.category;
+    const stock = req.body.stock;
+    const seller = req.body.seller;
+    const newImg = file.data;
+    const encImg = newImg.toString("base64");
+
+    var image = {
+      contentType: file.mimetype,
+      size: file.size,
+      img: Buffer.from(encImg, "base64"),
+    };
+
+    productsCollection
+      .insertOne({ key, name, category,stock, seller,image })
+      .then((result) => {
+        res.send(result.insertedCount > 0);
+      });
+  });
+
 
 // Getting data from database to show in shop
 app.get('/getproducts', (req, res) => {
