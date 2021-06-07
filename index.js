@@ -2,8 +2,10 @@ const express = require('express')
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const MongoClient = require('mongodb').MongoClient;
+require('dotenv').config();
 
-const uri = "mongodb+srv://emaJohnCustomer:emaJohnCustomer12345@cluster0.pjygh.mongodb.net/emaJohnStore?retryWrites=true&w=majority";
+
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.pjygh.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
 
 
 const app = express();
@@ -44,18 +46,31 @@ app.post('/addProduct', (req, res) => {
     productsCollection.insertOne(products)
     .then(result => {
         console.log(result.insertedCount);
-        res.send(result.insertedCount)
+        // res.send(result.insertedCount)
     })
 })
 
 
-//Getting data from database to show in shop
-app.get('/products', (req, res) => {
+// Getting data from database to show in shop
+app.get('/getproducts', (req, res) => {
     productsCollection.find({})
     .toArray( (err, documents) => {
         res.send(documents);
     })
 })
+
+
+//searching from database
+app.get('/products', (req, res) => {
+
+    const search=req.query.search//recieving the search req from client side
+
+    productsCollection.find({name:{$regex: search }})
+    .toArray( (err, documents) => {
+        res.send(documents);
+    })
+})
+
 
 
 
@@ -89,4 +104,4 @@ app.post('/addOrder', (req, res) => {
 });//client.connect
 
 
-app.listen(5000)
+app.listen(process.env.PORT|| 5000)
